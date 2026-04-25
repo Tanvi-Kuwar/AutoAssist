@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
@@ -27,26 +28,21 @@ const server = http.createServer(app);
 const dbUrl = process.env.ATLASDB_URL;
 const sessionSecret = process.env.SESSION_SECRET;
 
-if (!dbUrl) throw new Error("ATLASDB_URL missing in env");
-if (!sessionSecret) throw new Error("SESSION_SECRET missing in env");
+if (!dbUrl) throw new Error("ATLASDB_URL missing");
+if (!sessionSecret) throw new Error("SESSION_SECRET missing");
 
-// ================= CORS =================
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://autoassist-ui.onrender.com"
-];
-
+// ================= MIDDLEWARE =================
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: "http://localhost:5173",
+  credentials: true,
 }));
 
 app.use(express.json());
 
-// ================= SOCKET.IO =================
+// ================= SOCKET =================
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: "http://localhost:5173",
     methods: ["GET", "POST", "PUT"],
     credentials: true,
   },
@@ -57,13 +53,8 @@ app.set("io", io);
 io.on("connection", (socket) => {
   console.log("⚡ Connected:", socket.id);
 
-  socket.on("join-user", (userId) => {
-    socket.join(userId);
-  });
-
-  socket.on("join-mechanic", (mechanicId) => {
-    socket.join(mechanicId);
-  });
+  socket.on("join-user", (id) => socket.join(id));
+  socket.on("join-mechanic", (id) => socket.join(id));
 
   socket.on("disconnect", () => {
     console.log("❌ Disconnected:", socket.id);
@@ -85,7 +76,7 @@ mongoose.connect(dbUrl)
     });
 
     store.on("error", (err) => {
-      console.log("SESSION STORE ERROR:", err);
+      console.log("SESSION ERROR:", err);
     });
 
     // ================= SESSION =================
@@ -95,12 +86,9 @@ mongoose.connect(dbUrl)
       resave: false,
       saveUninitialized: false,
       cookie: {
-        maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
-
-        // IMPORTANT for production (Render + HTTPS)
-        sameSite: "none",
-        secure: true
+        sameSite: "lax",
+        secure: true, // set true in production (Render)
       }
     }));
 
@@ -119,12 +107,7 @@ mongoose.connect(dbUrl)
     app.use("/api/bookings", bookingRoutes);
     app.use("/api/mechanics", mechanicRoutes);
 
-    // ================= TEST ROUTE =================
-    app.get("/", (req, res) => {
-      res.send("🚀 API is running");
-    });
-
-    // ================= SERVER START =================
+    // ================= START =================
     server.listen(5000, () => {
       console.log("🚀 Server running on port 5000");
     });
@@ -133,3 +116,8 @@ mongoose.connect(dbUrl)
   .catch((err) => {
     console.log("❌ DB Error:", err);
   });
+
+// ================= TEST =================
+app.get("/", (req, res) => {
+  res.send("🚀 API is running");
+});

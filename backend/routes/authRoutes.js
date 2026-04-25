@@ -77,12 +77,9 @@ router.post("/login", (req, res, next) => {
 
 
 // ================= LOGOUT =================
-router.get("/logout", (req, res, next) => {
-  req.logout((err) => {
-    if (err) return next(err);
-    req.session.destroy(() => {
-      res.json({ success: true });
-    });
+router.get("/logout", (req, res) => {
+  req.logout(() => {
+    res.json({ success: true, message: "Logged out" });
   });
 });
 
