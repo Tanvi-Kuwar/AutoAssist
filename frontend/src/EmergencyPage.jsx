@@ -97,7 +97,7 @@ export default function EmergencyPage({
   };
 
   try {
-    const res = await fetch("http://localhost:5000/api/bookings", {
+    const res = await fetch("https://autoassist-k2bl.onrender.com/api/bookings", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

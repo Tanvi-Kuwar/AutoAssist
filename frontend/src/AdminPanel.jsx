@@ -16,8 +16,8 @@ export default function AdminPanel() {
   const fetchMechanics = async () => {
     const url =
       filter === "pending"
-        ? "http://localhost:5000/api/admin/mechanics/pending"
-        : "http://localhost:5000/api/admin/mechanics";
+        ? "https://autoassist-k2bl.onrender.com/api/admin/mechanics/pending"
+        : "https://autoassist-k2bl.onrender.com/api/admin/mechanics";
 
     const res = await fetch(url);
     const data = await res.json();
@@ -32,7 +32,7 @@ export default function AdminPanel() {
   // ================= APPROVE =================
   const approve = async (id) => {
     await fetch(
-      `http://localhost:5000/api/admin/mechanics/approve/${id}`,
+      `https://autoassist-k2bl.onrender.com/api/admin/mechanics/approve/${id}`,
       { method: "PUT" }
     );
 
@@ -42,7 +42,7 @@ export default function AdminPanel() {
   // ================= REJECT (SOFT DELETE) =================
   const reject = async (id) => {
     await fetch(
-      `http://localhost:5000/api/admin/mechanics/reject/${id}`,
+      `https://autoassist-k2bl.onrender.com/api/admin/mechanics/reject/${id}`,
       { method: "PUT" }
     );
 
