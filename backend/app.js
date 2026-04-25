@@ -28,11 +28,14 @@ const server = http.createServer(app);
 // ================= SOCKET.IO =================
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://autoassist-ui.onrender.com"
+    ],
     methods: ["GET", "POST", "PUT"],
+    credentials: true,
   },
 });
-
 // make io accessible in routes
 app.set("io", io);
 
@@ -58,7 +61,10 @@ io.on("connection", (socket) => {
 });
 // ================= MIDDLEWARE =================
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "https://autoassist-ui.onrender.com"
+  ],
   credentials: true,
 }));
 
@@ -70,6 +76,9 @@ const dbUrl = process.env.ATLASDB_URL;
 
 const store = MongoStore.create({
   mongoUrl: dbUrl,
+  crypto: {
+    secret: process.env.SESSION_SECRET,
+  },
   touchAfter: 24 * 3600,
 });
 
@@ -86,8 +95,8 @@ app.use(session({
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    sameSite: "lax",
-    secure: false,
+    sameSite: "none",
+    secure: true
   }
 }));
 
