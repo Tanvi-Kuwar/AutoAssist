@@ -1,0 +1,332 @@
+import { useState } from "react";
+import EmergencyPage from "./EmergencyPage";
+import MechanicLogin from "./MechanicLogin";
+import MechanicDashboard from "./MechanicDashboard";
+import UserLogin from "./UserLogin";
+
+import "leaflet/dist/leaflet.css";
+
+import L from "leaflet";
+
+// Fix default icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png",
+  iconUrl:
+    "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png",
+});
+
+export default function App() {
+  const [page, setPage] = useState("home");
+  const [issue, setIssue] = useState("");
+  const [result, setResult] = useState(null);
+  const [location, setLocation] = useState(null);
+  const [mechanic, setMechanic] = useState(null);
+  const [user, setUser] = useState(null); // ✅ ADD THIS
+
+  // 📍 GET LOCATION FIRST
+  const getLocation = () => {
+  setPage("emergency"); // 👈 FIRST switch page immediately
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      setLocation({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+      });
+    },
+    (err) => {
+      console.log(err);
+      alert("Location permission denied");
+    }
+  );
+};
+
+  // 🚨 EMERGENCY API CALL
+  const handleEmergency = async () => {
+    if (!location) {
+      alert("Please select location first");
+      return;
+    }
+
+    if (!issue) {
+      alert("Please select an issue");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/emergency", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          issue,
+          location,
+        }),
+      });
+
+      const data = await res.json();
+
+      console.log("API RESPONSE:", data);
+      setResult(data);
+    } catch (err) {
+      console.log(err);
+      alert("Server error");
+    }
+  };
+  // LOGOUT API CALL
+  const handleLogout = async () => {
+  try {
+    await fetch("http://localhost:5000/api/auth/logout");
+    setUser(null);
+    setPage("home");
+  } catch (err) {
+    console.log(err);
+  }
+};
+  // ================= EMERGENCY PAGE =================
+  if (page === "emergency") {
+    return (
+      <EmergencyPage
+  setPage={setPage}
+  issue={issue}
+  setIssue={setIssue}
+  handleEmergency={handleEmergency}
+  result={result}
+  location={location}
+  setLocation={setLocation}
+  user={user}   // ✅ ADD THIS
+/>
+    );
+  }
+  // ================= MECHANICS PAGE =================
+  if (page === "mechanic-login") {
+  return (
+    <MechanicLogin
+      setPage={setPage}
+      setMechanic={setMechanic}
+    />
+  );
+}
+
+if (page === "mechanic-dashboard") {
+  return (
+    <MechanicDashboard
+      mechanic={mechanic}
+      setPage={setPage}
+    />
+  );
+}
+
+// ================= LOGIN PAGE =================
+if (page === "user-login") {
+  return <UserLogin setUser={setUser} setPage={setPage} />;
+}
+
+  // ================= HOME PAGE (OLD UI RESTORED) =================
+  return (
+    <div className="vh-100 w-100 bg-white overflow-auto">
+
+      {/* ================= HEADER ================= */}
+      <div className="d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
+        <div className="fw-bold fs-5">AutoAssist</div>
+
+
+          
+        <div className="d-flex gap-2 align-items-center">
+
+  {!user ? (
+    <>
+      <button
+        className="btn btn-outline-dark rounded-pill px-4"
+        onClick={() => setPage("mechanic-login")}
+      >
+        Mechanic Login
+      </button>
+
+      <button
+        className="btn btn-outline-dark btn-sm rounded-pill"
+        onClick={() => setPage("user-login")}
+      >
+        Log in
+      </button>
+
+      <button className="btn btn-dark btn-sm rounded-pill">
+        Sign up
+      </button>
+    </>
+  ) : (
+    <>
+      <span className="fw-bold">
+        👤 {user.username}
+      </span>
+
+      <button
+        className="btn btn-dark btn-sm rounded-pill"
+        onClick={handleLogout}
+      >
+        Logout
+      </button>
+    </>
+  )}
+
+</div>
+      </div>
+
+      {/* ================= HERO SECTION ================= */}
+      <div className="px-4 py-5">
+        <h2 className="fw-bold">Garage & Roadside Assistance Platform</h2>
+        <p className="text-muted">
+          Request emergency help or schedule your vehicle service instantly
+        </p>
+
+        <div className="mt-3 d-flex gap-2 flex-wrap">
+
+          <button
+            className="btn btn-dark rounded-pill px-4"
+            onClick={getLocation}
+          >
+            Emergency Help
+          </button>
+
+          <button className="btn btn-outline-dark rounded-pill px-4">
+            Book Service
+          </button>
+
+          <button className="btn btn-outline-dark rounded-pill px-4">
+            Fleet Solutions
+          </button>
+
+        </div>
+      </div>
+
+      {/* ================= QUICK SERVICES ================= */}
+      <div className="px-4 py-3">
+
+        <h5 className="fw-bold">Services</h5>
+
+        <div className="d-flex gap-2 overflow-auto py-2">
+
+          {[
+            "Battery",
+            "Tyre",
+            "Engine",
+            "Towing",
+            "AC Repair",
+            "Inspection"
+          ].map((s) => (
+            <span
+              key={s}
+              className="border px-3 py-2 rounded-pill text-nowrap"
+            >
+              {s}
+            </span>
+          ))}
+
+        </div>
+      </div>
+
+      {/* ================= FEATURE GRID ================= */}
+      <div className="px-4 py-4">
+
+        <div className="row g-3">
+
+          <div className="col-md-4">
+            <div className="border rounded-4 p-3 h-100">
+              <h6 className="fw-bold">Instant Assistance</h6>
+              <p className="text-muted small">
+                Connect with nearby mechanics in real-time
+              </p>
+            </div>
+          </div>
+
+          <div className="col-md-4">
+            <div className="border rounded-4 p-3 h-100">
+              <h6 className="fw-bold">Scheduled Service</h6>
+              <p className="text-muted small">
+                Book garage appointments in advance
+              </p>
+            </div>
+          </div>
+
+          <div className="col-md-4">
+            <div className="border rounded-4 p-3 h-100">
+              <h6 className="fw-bold">Fleet Management</h6>
+              <p className="text-muted small">
+                Business solutions for companies
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ================= INFO SECTION ================= */}
+      <div className="px-4 py-5 border-top">
+
+        <h5 className="fw-bold">Why AutoAssist</h5>
+
+        <div className="row mt-3">
+
+          <div className="col-md-6 mb-3">
+            <h6>700+ service zones</h6>
+            <p className="text-muted small">Mechanics available across cities</p>
+          </div>
+
+          <div className="col-md-6 mb-3">
+            <h6>Real-time tracking</h6>
+            <p className="text-muted small">Live mechanic location updates</p>
+          </div>
+
+          <div className="col-md-6 mb-3">
+            <h6>Fast emergency response</h6>
+            <p className="text-muted small">Average response under 10 minutes</p>
+          </div>
+
+          <div className="col-md-6 mb-3">
+            <h6>Trusted mechanics</h6>
+            <p className="text-muted small">Verified professionals only</p>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ================= FOOTER ================= */}
+      <div className="border-top px-4 py-4">
+
+        <div className="row">
+
+          <div className="col-md-3">
+            <h6>Company</h6>
+            <p className="text-muted small">About • Careers • Blog</p>
+          </div>
+
+          <div className="col-md-3">
+            <h6>Services</h6>
+            <p className="text-muted small">Emergency • Booking • Fleet</p>
+          </div>
+
+          <div className="col-md-3">
+            <h6>Support</h6>
+            <p className="text-muted small">Help Center • Safety</p>
+          </div>
+
+          <div className="col-md-3">
+            <h6>Download</h6>
+            <p className="text-muted small">Android • iOS App</p>
+          </div>
+
+        </div>
+
+        <div className="text-center text-muted small mt-3">
+          © 2026 AutoAssist Technologies
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
