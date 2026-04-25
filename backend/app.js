@@ -70,35 +70,12 @@ io.on("connection", (socket) => {
   });
 });
 
-// ================= ROUTES =================
-app.use("/api/admin", adminRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/emergency", emergencyRoutes);
-app.use("/api/bookings", bookingRoutes);
-app.use("/api/mechanics", mechanicRoutes);
-
-// ================= TEST ROUTE =================
-app.get("/", (req, res) => {
-  res.send("🚀 API is running");
-});
-
-// ================= CREATE USER TEST =================
-app.get("/create-user", async (req, res) => {
-  const user = new User({
-    username: "testuser",
-    email: "test@test.com"
-  });
-
-  await User.register(user, "123456");
-  res.send("User created in Atlas!");
-});
-
-// ================= DATABASE + SESSION START =================
+// ================= DATABASE =================
 mongoose.connect(dbUrl)
   .then(() => {
     console.log("✅ MongoDB Connected");
 
-    // SESSION STORE (ONLY ONCE)
+    // ================= SESSION STORE =================
     const store = MongoStore.create({
       mongoUrl: dbUrl,
       crypto: {
@@ -111,7 +88,7 @@ mongoose.connect(dbUrl)
       console.log("SESSION STORE ERROR:", err);
     });
 
-    // SESSION MIDDLEWARE
+    // ================= SESSION =================
     app.use(session({
       store,
       secret: sessionSecret,
@@ -120,12 +97,14 @@ mongoose.connect(dbUrl)
       cookie: {
         maxAge: 7 * 24 * 60 * 60 * 1000,
         httpOnly: true,
+
+        // IMPORTANT for production (Render + HTTPS)
         sameSite: "none",
-        secure: true, // REQUIRED for Render HTTPS
+        secure: true
       }
     }));
 
-    // PASSPORT (AFTER SESSION)
+    // ================= PASSPORT =================
     app.use(passport.initialize());
     app.use(passport.session());
 
@@ -133,7 +112,19 @@ mongoose.connect(dbUrl)
     passport.serializeUser(User.serializeUser());
     passport.deserializeUser(User.deserializeUser());
 
-    // START SERVER
+    // ================= ROUTES =================
+    app.use("/api/admin", adminRoutes);
+    app.use("/api/auth", authRoutes);
+    app.use("/api/emergency", emergencyRoutes);
+    app.use("/api/bookings", bookingRoutes);
+    app.use("/api/mechanics", mechanicRoutes);
+
+    // ================= TEST ROUTE =================
+    app.get("/", (req, res) => {
+      res.send("🚀 API is running");
+    });
+
+    // ================= SERVER START =================
     server.listen(5000, () => {
       console.log("🚀 Server running on port 5000");
     });
