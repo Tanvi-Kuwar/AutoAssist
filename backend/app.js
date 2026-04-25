@@ -61,11 +61,8 @@ io.on("connection", (socket) => {
 });
 // ================= MIDDLEWARE =================
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://autoassist-ui.onrender.com"
-  ],
-  credentials: true,
+  origin: "https://autoassist-ui.onrender.com",
+  credentials: true
 }));
 
 app.use(express.json());

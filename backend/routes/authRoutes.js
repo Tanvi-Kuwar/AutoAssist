@@ -77,9 +77,12 @@ router.post("/login", (req, res, next) => {
 
 
 // ================= LOGOUT =================
-router.get("/logout", (req, res) => {
-  req.logout(() => {
-    res.json({ success: true, message: "Logged out" });
+router.get("/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) return next(err);
+    req.session.destroy(() => {
+      res.json({ success: true });
+    });
   });
 });
 
@@ -91,12 +94,13 @@ router.get("/me", (req, res) => {
     return res.json({ user: null });
   }
 
-  res.json({
+  return res.json({
+    success: true,
     user: {
-      _id: req.user._id,
-      username: req.user.username,
-      email: req.user.email,
-      phone: req.user.phone
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      phone: user.phone
     }
   });
 });
