@@ -60,8 +60,13 @@ io.on("connection", (socket) => {
   });
 });
 // ================= MIDDLEWARE =================
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://autoassist-ui.onrender.com"
+];
+
 app.use(cors({
-  origin: "https://autoassist-ui.onrender.com",
+  origin: allowedOrigins,
   credentials: true
 }));
 
@@ -70,6 +75,10 @@ app.use("/api/admin", adminRoutes);
 // ================= SESSION =================
 
 const dbUrl = process.env.ATLASDB_URL;
+
+if (!dbUrl) {
+  throw new Error("ATLASDB_URL is missing in environment variables");
+}
 
 const store = MongoStore.create({
   mongoUrl: dbUrl,
@@ -92,8 +101,8 @@ app.use(session({
     expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    sameSite: "none",
-    secure: true
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production"
   }
 }));
 
