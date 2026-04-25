@@ -83,4 +83,23 @@ router.get("/logout", (req, res) => {
   });
 });
 
+
+
+
+router.get("/me", (req, res) => {
+  if (!req.user) {
+    return res.json({ user: null });
+  }
+
+  res.json({
+    user: {
+      _id: req.user._id,
+      username: req.user.username,
+      email: req.user.email,
+      phone: req.user.phone
+    }
+  });
+});
+
+
 module.exports = router;

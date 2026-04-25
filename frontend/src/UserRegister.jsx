@@ -16,7 +16,7 @@ export default function UserRegister() {
         return;
       }
 
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch("https://autoassist-k2bl.onrender.com/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

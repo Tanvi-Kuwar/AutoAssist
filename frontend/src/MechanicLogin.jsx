@@ -12,7 +12,7 @@ export default function MechanicLogin({ setMechanic }) {
         return;
       }
 
-      const res = await fetch("http://localhost:5000/api/mechanics/login", {
+      const res = await fetch("https://autoassist-k2bl.onrender.com/api/mechanics/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone }),

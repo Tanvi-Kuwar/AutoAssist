@@ -126,7 +126,7 @@ export default function MechanicRegister() {
   },
 };
       const res = await fetch(
-        "http://localhost:5000/api/mechanics/register",
+        "https://autoassist-k2bl.onrender.com/api/mechanics/register",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

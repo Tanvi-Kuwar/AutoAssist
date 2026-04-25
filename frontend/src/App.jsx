@@ -20,6 +20,19 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [booking, setBooking] = useState(null);
 
+  useEffect(() => {
+    fetch("https://autoassist-k2bl.onrender.com/api/auth/me", {
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.user) {
+          setUser(data.user);
+        }
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
   // 📍 LOCATION
   const getLocation = () => {
     navigator.geolocation.getCurrentPosition(
@@ -44,7 +57,7 @@ export default function App() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/emergency", {
+      const res = await fetch("https://autoassist-k2bl.onrender.com/api/emergency", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ issue, location }),
@@ -60,7 +73,7 @@ export default function App() {
   // 🔓 LOGOUT
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/logout");
+      await fetch("https://autoassist-k2bl.onrender.com/api/auth/logout");
       setUser(null);
       setBooking(null); // ✅ clear booking too
     } catch (err) {
@@ -145,8 +158,11 @@ export default function App() {
         element={<MechanicDashboard mechanic={mechanic} />}
       />
 
-// inside Routes
-<Route path="/admin" element={<AdminPanel />} />
+
+      <Route 
+        path="/admin" 
+        element={<AdminPanel />} 
+      />
 
     </Routes>
     

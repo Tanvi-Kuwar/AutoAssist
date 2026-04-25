@@ -47,7 +47,7 @@ export default function MechanicDashboard({ mechanic, setPage }) {
   // ================= FETCH BOOKINGS =================
   const fetchBookings = async () => {
     const res = await fetch(
-      `http://localhost:5000/api/bookings/${mechanicId}`
+      `https://autoassist-k2bl.onrender.com/api/bookings/${mechanicId}`
     );
     const data = await res.json();
     setBookings(data.bookings || []);
@@ -72,7 +72,7 @@ export default function MechanicDashboard({ mechanic, setPage }) {
 
   // ================= STATUS UPDATE =================
   const updateStatus = async (id, status) => {
-    await fetch(`http://localhost:5000/api/bookings/${id}`, {
+    await fetch(`https://autoassist-k2bl.onrender.com/api/bookings/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
@@ -89,7 +89,7 @@ export default function MechanicDashboard({ mechanic, setPage }) {
   setIsOnline(newStatus);
 
   await fetch(
-    `http://localhost:5000/api/mechanics/location/${mechanicId}`,
+    `https://autoassist-k2bl.onrender.com/api/mechanics/location/${mechanicId}`,
     {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -148,7 +148,7 @@ export default function MechanicDashboard({ mechanic, setPage }) {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/mechanics/status/${mechanic._id}`
+        `https://autoassist-k2bl.onrender.com/api/mechanics/status/${mechanic._id}`
       );
 
       const data = await res.json();

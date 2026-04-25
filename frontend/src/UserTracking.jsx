@@ -10,7 +10,7 @@ export default function UserTracking({ user }) {
       if (!user?._id) return;
 
       const res = await fetch(
-        `http://localhost:5000/api/bookings/user/${user._id}`
+        `https://autoassist-k2bl.onrender.com/api/bookings/user/${user._id}`
       );
 
       const data = await res.json();

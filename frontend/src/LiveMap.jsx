@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
 // create socket ONLY ONCE
-const socket = io("http://localhost:5000", {
+const socket = io("https://autoassist-k2bl.onrender.com", {
   transports: ["websocket"],
 });
 
