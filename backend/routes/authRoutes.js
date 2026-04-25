@@ -85,22 +85,4 @@ router.get("/logout", (req, res) => {
 
 
 
-
-router.get("/me", (req, res) => {
-  if (!req.user) {
-    return res.json({ user: null });
-  }
-
-  return res.json({
-    success: true,
-    user: {
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      phone: user.phone
-    }
-  });
-});
-
-
 module.exports = router;

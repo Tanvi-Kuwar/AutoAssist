@@ -20,19 +20,6 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [booking, setBooking] = useState(null);
 
-  useEffect(() => {
-    fetch("https://autoassist-k2bl.onrender.com/api/auth/me", {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.user) {
-          setUser(data.user);
-        }
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
   // 📍 LOCATION
   const getLocation = () => {
     navigator.geolocation.getCurrentPosition(
